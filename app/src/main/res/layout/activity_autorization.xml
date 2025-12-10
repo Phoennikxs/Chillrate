@@ -57,7 +57,7 @@
 
     <Button
         android:id="@+id/button_log_in"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="33dp"
         android:layout_marginStart="56dp"
@@ -75,7 +75,7 @@
 
     <Button
         android:id="@+id/button_sign_up"
-        android:layout_width="300dp"
+        android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="17dp"
         android:layout_marginStart="56dp"
