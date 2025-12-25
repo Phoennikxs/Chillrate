@@ -13,7 +13,9 @@ import android.bluetooth.le.BluetoothLeScanner
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -30,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private var scanner: BluetoothLeScanner? = null
     private val scannedDevices = mutableListOf<BluetoothDevice>()
     private var gatt: BluetoothGatt? = null
+    private lateinit var menuLayout: LinearLayout
 
     private val REQUEST_PERMISSIONS = 1001
 
@@ -45,6 +48,26 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.button_start).setOnClickListener {
             startBleScanWithPermissions()
+        }
+
+        menuLayout = findViewById<LinearLayout>(R.id.menu_layout)
+
+        findViewById<ImageButton>(R.id.button_menu).setOnClickListener {
+            menuVisibility()
+        }
+    }
+
+    private fun menuVisibility() {
+        if (menuLayout.visibility == View.VISIBLE) {
+            // Если меню видимое - скрываем
+            menuLayout.visibility = View.GONE
+            // Опционально: меняем текст кнопки
+            // toggleButton.text = "Показать меню"
+        } else {
+            // Если меню скрыто - показываем
+            menuLayout.visibility = View.VISIBLE
+            // Опционально: меняем текст кнопки
+            // toggleButton.text = "Скрыть меню"
         }
     }
 
