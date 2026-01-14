@@ -39,12 +39,7 @@
         android:layout_marginStart="14dp"/>
         />
 
-    <include
-        android:id="@+id/menu_layout"
-        layout="@layout/side_menu"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -67,7 +62,6 @@
             android:focusable="true"
             android:foreground="?attr/selectableItemBackgroundBorderless"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_avatar_placeholder"
             app:shapeAppearanceOverlay="@style/CircleImage" />
 
         <TextView
@@ -194,46 +188,81 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edit_birthday">
 
-        <EditText
-            id="@+id/edit_height"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
 
-            android:layout_weight="1"
+            android:layout_weight="1">
+            <EditText
+                android:id="@+id/edit_height"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
 
-            android:background="@drawable/editttext_bg"
-            android:fontFamily="@font/montserrat_regular"
-            android:gravity="end"
-            android:text="180 см"
-            android:textColor="@color/black"
 
-            android:textSize="16sp" />
 
-        <EditText
-            id="@+id/edit_weight"
+                android:background="@drawable/editttext_bg"
+                android:fontFamily="@font/montserrat_regular"
+                android:gravity="end"
+                android:text="180 см"
+                android:textColor="@color/black"
+
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_height"
+                android:layout_marginLeft="13dp"
+                app:layout_constraintBottom_toBottomOf="@+id/edit_height"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
 
-            android:layout_weight="1"
+            android:layout_weight="1">
 
-            android:background="@drawable/editttext_bg"
-            android:fontFamily="@font/montserrat_regular"
-            android:gravity="end"
-            android:text="80 кг"
-            android:textColor="@color/black"
+            <EditText
+                android:id="@+id/edit_weight"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
 
-            android:textSize="16sp" />
+                android:layout_weight="1"
+                android:background="@drawable/editttext_bg"
+                android:fontFamily="@font/montserrat_regular"
+                android:gravity="end"
+                android:text="80 кг"
+                android:textColor="@color/black"
+
+                android:textSize="16sp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_weight"
+
+                android:layout_marginLeft="13dp"
+
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     </LinearLayout>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_height"
-        android:layout_marginLeft="13dp"
-        app:layout_constraintBottom_toBottomOf="@+id/linearLayout3"
-        app:layout_constraintStart_toStartOf="@+id/linearLayout3"
-        app:layout_constraintTop_toTopOf="@+id/linearLayout3" />
+    <include
+        android:id="@+id/menu_layout"
+        layout="@layout/side_menu"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
