@@ -5,5 +5,8 @@
     <color name="button_color_1">#A1B8FF</color>
     <color name="button_color_2">#6582DC</color>
     <color name="menu_color">#8ECAFF</color>
+    <color name="button_unpressed_color">#8ECAFF</color>
+    <color name="button_pressed_color">#1F8DEE</color>
+
 
 </resources>

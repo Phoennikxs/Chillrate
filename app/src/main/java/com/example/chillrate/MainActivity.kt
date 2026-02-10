@@ -10,10 +10,12 @@ import android.bluetooth.BluetoothGattService
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.BluetoothLeScanner
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -26,13 +28,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy { BluetoothAdapter.getDefaultAdapter() }
     private var scanner: BluetoothLeScanner? = null
     private val scannedDevices = mutableListOf<BluetoothDevice>()
     private var gatt: BluetoothGatt? = null
-    private lateinit var menuLayout: LinearLayout
+
 
     private val REQUEST_PERMISSIONS = 1001
 
@@ -50,26 +52,11 @@ class MainActivity : AppCompatActivity() {
             startBleScanWithPermissions()
         }
 
-        menuLayout = findViewById<LinearLayout>(R.id.menu_layout)
-
-        findViewById<ImageButton>(R.id.button_menu).setOnClickListener {
-            menuVisibility()
-        }
+        setupSideMenu()
     }
 
-    private fun menuVisibility() {
-        if (menuLayout.visibility == View.VISIBLE) {
-            // Если меню видимое - скрываем
-            menuLayout.visibility = View.GONE
-            // Опционально: меняем текст кнопки
-            // toggleButton.text = "Показать меню"
-        } else {
-            // Если меню скрыто - показываем
-            menuLayout.visibility = View.VISIBLE
-            // Опционально: меняем текст кнопки
-            // toggleButton.text = "Скрыть меню"
-        }
-    }
+
+
 
     private fun startBleScanWithPermissions() {
 
