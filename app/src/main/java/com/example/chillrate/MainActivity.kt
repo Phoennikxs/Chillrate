@@ -27,8 +27,17 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import java.util.*
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
+import android.widget.TextView
 
 class MainActivity : BaseActivity() {
+
+    private lateinit var startButton: ImageButton
+    private lateinit var startText: TextView
+    private var pulseAnimator: ObjectAnimator? = null
+    private var textColorAnimator: ObjectAnimator? = null
 
     private val bluetoothAdapter: BluetoothAdapter? by lazy { BluetoothAdapter.getDefaultAdapter() }
     private var scanner: BluetoothLeScanner? = null
@@ -47,15 +56,61 @@ class MainActivity : BaseActivity() {
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
             insets
         }
+        startButton = findViewById(R.id.button_start)
+        startText = findViewById(R.id.text_start)
 
-        findViewById<ImageButton>(R.id.button_start).setOnClickListener {
+        startButton.setOnClickListener {
+            startSearchUI()
             startBleScanWithPermissions()
         }
 
         setupSideMenu()
     }
 
+    private fun startSearchUI() {
+        startText.text = "Поиск"
 
+        // Пульсация кнопки
+        if (pulseAnimator == null) {
+            pulseAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                startButton,
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.15f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.15f)
+            ).apply {
+                duration = 800
+                repeatMode = ValueAnimator.REVERSE
+                repeatCount = ValueAnimator.INFINITE
+            }
+        }
+
+        // Перелив цвета текста
+        if (textColorAnimator == null) {
+            textColorAnimator = ObjectAnimator.ofArgb(
+                startText,
+                "textColor",
+                ContextCompat.getColor(this, R.color.white),
+                ContextCompat.getColor(this, R.color.soft_blue)
+            ).apply {
+                duration = 800
+                repeatMode = ValueAnimator.REVERSE
+                repeatCount = ValueAnimator.INFINITE
+            }
+        }
+
+        pulseAnimator?.start()
+        textColorAnimator?.start()
+    }
+
+    private fun stopSearchUI() {
+        pulseAnimator?.cancel()
+        textColorAnimator?.cancel()
+
+        startButton.scaleX = 1f
+        startButton.scaleY = 1f
+
+        startText.text = "Начать"
+        startText.setTextColor(ContextCompat.getColor(this, R.color.white))
+    }
 
 
     private fun startBleScanWithPermissions() {
@@ -110,6 +165,8 @@ class MainActivity : BaseActivity() {
     }
 
     private fun stopScanAndShowDialog() {
+        stopSearchUI()
+
         scanner?.stopScan(scanCallback)
         if (scannedDevices.isEmpty()) {
             Toast.makeText(this, "Устройств Callibri не найдено", Toast.LENGTH_SHORT).show()
