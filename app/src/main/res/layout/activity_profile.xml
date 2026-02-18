@@ -98,7 +98,7 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="22dp"
         android:src="@drawable/ic_person_logo"
         app:layout_constraintBottom_toBottomOf="@+id/edit_person_name"
         app:layout_constraintStart_toStartOf="@+id/edit_person_name"
@@ -212,7 +212,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_height"
-                android:layout_marginLeft="13dp"
+                android:layout_marginLeft="16dp"
                 app:layout_constraintBottom_toBottomOf="@+id/edit_height"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 
-    android:visibility="visible"
+    android:visibility="gone"
     android:id="@+id/menu_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -158,5 +158,27 @@
             android:textColor="@color/black"/>
     </LinearLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginVertical="8dp"
+        android:gravity="center">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_premium"
+            android:backgroundTint="@android:color/transparent"/>
+        <Button
+            android:id="@+id/btn_premium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Премиум"
+            android:textSize="20sp"
+            android:fontFamily="@font/montserrat_regular"
+            android:background="@android:color/transparent"
+            android:textColor="@color/black"/>
+    </LinearLayout>
 
 </LinearLayout>
