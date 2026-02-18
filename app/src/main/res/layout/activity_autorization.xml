@@ -56,7 +56,7 @@
 
 
     <Button
-        android:id="@+id/button_log_in"
+        android:id="@+id/btn_log_in"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="33dp"
@@ -74,7 +74,7 @@
         app:layout_constraintTop_toBottomOf="@+id/edit_pass" />
 
     <Button
-        android:id="@+id/button_sign_up"
+        android:id="@+id/btn_go_to_reg"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="17dp"
@@ -90,7 +90,7 @@
         app:cornerRadius="100dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_log_in" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_log_in" />
 
     <TextView
         android:id="@+id/textView"
@@ -105,7 +105,7 @@
         android:fontFamily="@font/montserrat_regular"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_sign_up" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_go_to_reg" />
 
     <Button
         android:id="@+id/button_yandex"
