@@ -10,8 +10,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.os.Handler
 import android.os.Looper
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.lifecycleScope
+import com.example.chillrate.api.RetrofitClient
+import kotlinx.coroutines.launch
 
 class AutorizationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,25 +33,59 @@ class AutorizationActivity : AppCompatActivity() {
         var AutriztionLayout = findViewById<View>(R.id.autorization)
         var WelcomeLayout = findViewById<View>(R.id.welcome_screen)
 
+
+
         AutorizationButton.setOnClickListener {
 
-            WelcomeLayout.visibility = View.VISIBLE
+            val email = findViewById<EditText>(R.id.edit_email).text.toString().trim()
+            val pass = findViewById<EditText>(R.id.edit_pass).text.toString().trim()
 
-            Handler(Looper.getMainLooper()).postDelayed({
+            if (email.isEmpty() || pass.isEmpty()) {
+                Toast.makeText(this, "Введите данные", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
-
-            }, 2500)
+            login(email, pass)
         }
 
         GoToRegistrationButton.setOnClickListener {
-            AutorizationButton.setOnClickListener {
-                val intent = Intent(this, RegistrationActivity::class.java)
-                startActivity(intent)
-                finish()
+
+            val intent = Intent(this, RegistrationActivity::class.java)
+            startActivity(intent)
+            finish()
+
+        }
+    }
+
+    private fun login(email: String, password: String) {
+
+        lifecycleScope.launch {
+
+            try {
+                val response = RetrofitClient.api.login(email, password)
+
+                if (response.isSuccessful) {
+
+                    val token = response.body()?.access_token
+
+                    // сохранить токен
+                    val prefs = getSharedPreferences("app", MODE_PRIVATE)
+                    prefs.edit().putString("token", token).apply()
+
+                    Toast.makeText(this@AutorizationActivity, "Вход успешен", Toast.LENGTH_LONG).show()
+
+                    // открыть главный экран
+                    startActivity(Intent(this@AutorizationActivity, MainActivity::class.java))
+                    finish()
+
+                } else {
+                    Toast.makeText(this@AutorizationActivity, "Неверный логин", Toast.LENGTH_LONG).show()
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(this@AutorizationActivity, "Ошибка сети", Toast.LENGTH_LONG).show()
             }
         }
     }
+
 }
