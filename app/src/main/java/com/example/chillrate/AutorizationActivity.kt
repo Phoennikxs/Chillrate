@@ -34,6 +34,18 @@ class AutorizationActivity : AppCompatActivity() {
         var WelcomeLayout = findViewById<View>(R.id.welcome_screen)
 
 
+        val prefs = getSharedPreferences("app", MODE_PRIVATE)
+        val token = prefs.getString("token", null)
+
+        if (token != null) {
+            WelcomeLayout.visibility = View.VISIBLE
+            Handler(Looper.getMainLooper()).postDelayed({
+
+                startActivity(Intent(this@AutorizationActivity, MainActivity::class.java))
+                finish()
+
+            }, 3000)
+        }
 
         AutorizationButton.setOnClickListener {
 
@@ -46,6 +58,7 @@ class AutorizationActivity : AppCompatActivity() {
             }
 
             login(email, pass)
+
         }
 
         GoToRegistrationButton.setOnClickListener {
@@ -75,8 +88,14 @@ class AutorizationActivity : AppCompatActivity() {
                     Toast.makeText(this@AutorizationActivity, "Вход успешен", Toast.LENGTH_LONG).show()
 
                     // открыть главный экран
-                    startActivity(Intent(this@AutorizationActivity, MainActivity::class.java))
-                    finish()
+                    var welcomeLayout = findViewById<View>(R.id.welcome_screen)
+                    welcomeLayout.visibility = View.VISIBLE
+                    Handler(Looper.getMainLooper()).postDelayed({
+
+                        startActivity(Intent(this@AutorizationActivity, MainActivity::class.java))
+                        finish()
+
+                    }, 3000)
 
                 } else {
                     Toast.makeText(this@AutorizationActivity, "Неверный логин", Toast.LENGTH_LONG).show()
