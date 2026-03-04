@@ -31,26 +31,52 @@ import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
+import com.neurosdk2.*
+import com.neurosdk2.helpers.PermissionHelper
+import com.neurosdk2.neuro.Callibri
+import com.neurosdk2.neuro.types.SensorFamily
+import com.neurosdk2.neuro.types.SensorInfo
+import com.neurosdk2.neuro.Scanner
+import com.neurosdk2.neuro.Sensor
+import kotlin.collections.mutableListOf
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 
 class MainActivity : BaseActivity() {
 
     private lateinit var startButton: ImageButton
     private lateinit var startText: TextView
+    private var scanner: Scanner? = null
     private var pulseAnimator: ObjectAnimator? = null
     private var textColorAnimator: ObjectAnimator? = null
 
-    private val bluetoothAdapter: BluetoothAdapter? by lazy { BluetoothAdapter.getDefaultAdapter() }
-    private var scanner: BluetoothLeScanner? = null
-    private val scannedDevices = mutableListOf<BluetoothDevice>()
-    private var gatt: BluetoothGatt? = null
+    private val foundSensors = mutableListOf<SensorInfo>()
 
-
-    private val REQUEST_PERMISSIONS = 1001
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: SensorAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        if(!PermissionHelper.HasAllPermissions(this)){
+            PermissionHelper.RequestPermissions(this
+            ) { grantedPermissions, deniedPermissions, deniedPermanentlyPermissions ->
+                if (deniedPermissions.isEmpty()) {
+                    Toast.makeText(this, "Разрешения получены", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Нужны Bluetooth и Location разрешения", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
@@ -59,12 +85,88 @@ class MainActivity : BaseActivity() {
         startButton = findViewById(R.id.button_start)
         startText = findViewById(R.id.text_start)
 
+        recyclerView = findViewById(R.id.sensorRecycler)
+
+        adapter = SensorAdapter(mutableListOf()) { sensorInfo ->
+            connectToSensor(sensorInfo)
+        }
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+
         startButton.setOnClickListener {
-            startSearchUI()
-            startBleScanWithPermissions()
+//            startSearchUI()
+            startScan()
         }
 
         setupSideMenu()
+    }
+
+    private fun startScan() {
+
+        Toast.makeText(this, "Поиск Callibri...", Toast.LENGTH_SHORT).show()
+
+        scanner = Scanner(SensorFamily.SensorLECallibri)
+
+        scanner?.sensorsChanged = Scanner.ScannerCallback { _, sensors ->
+
+            runOnUiThread {
+
+                recyclerView.visibility = View.VISIBLE
+
+                foundSensors.clear()
+                foundSensors.addAll(sensors)
+
+                adapter.update(foundSensors)
+            }
+        }
+
+        scanner?.start()
+
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            stopCallibriScan()
+        }, 10000)
+    }
+
+    private fun stopCallibriScan() {
+
+        scanner?.stop()
+
+        scanner?.sensorsChanged = null
+
+        Toast.makeText(this, "Поиск завершён", Toast.LENGTH_SHORT).show()
+
+    }
+
+    private fun connectToSensor(sensorInfo: SensorInfo) {
+
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            try {
+
+                val sensor = scanner?.createSensor(sensorInfo) as Callibri
+
+                sensor.sensorStateChanged = Sensor.SensorStateChanged { state ->
+                    println("STATE: $state")
+                }
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Подключено!", Toast.LENGTH_LONG).show()
+                }
+
+            } catch (e: Exception) {
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Ошибка подключения", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scanner?.stop()
+        scanner?.close()
     }
 
     private fun startSearchUI() {
@@ -113,124 +215,4 @@ class MainActivity : BaseActivity() {
     }
 
 
-    private fun startBleScanWithPermissions() {
-
-
-        val perms = mutableListOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            perms += listOf(
-                Manifest.permission.BLUETOOTH_SCAN,
-                Manifest.permission.BLUETOOTH_CONNECT
-            )
-        }
-        val notGranted = perms.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-        if (notGranted.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, notGranted.toTypedArray(), REQUEST_PERMISSIONS)
-        } else {
-            startBleScan()
-        }
-    }
-
-    private fun startBleScan() {
-        if (bluetoothAdapter == null || !bluetoothAdapter!!.isEnabled) {
-            Toast.makeText(this, "Bluetooth не включён или не поддерживается", Toast.LENGTH_SHORT).show()
-            return
-        }
-        scanner = bluetoothAdapter!!.bluetoothLeScanner
-        scannedDevices.clear()
-        scanner?.startScan(scanCallback)
-        Toast.makeText(this, "Сканирование запущено…", Toast.LENGTH_SHORT).show()
-
-        // Прекратить скан через 10 секунд
-        window.decorView.postDelayed({
-            stopScanAndShowDialog()
-        }, 10_000)
-    }
-
-    private val scanCallback = object : ScanCallback() {
-        override fun onScanResult(callbackType: Int, result: ScanResult) {
-            val device = result.device
-            val name = device.name ?: result.scanRecord?.deviceName
-            if (name != null && name.contains("Callibri", ignoreCase = true)) {
-                if (!scannedDevices.any { it.address == device.address }) {
-                    scannedDevices.add(device)
-                }
-            }
-        }
-    }
-
-    private fun stopScanAndShowDialog() {
-        stopSearchUI()
-
-        scanner?.stopScan(scanCallback)
-        if (scannedDevices.isEmpty()) {
-            Toast.makeText(this, "Устройств Callibri не найдено", Toast.LENGTH_SHORT).show()
-        } else {
-            showDeviceListDialog()
-        }
-    }
-
-    private fun showDeviceListDialog() {
-        val items = scannedDevices.map { d ->
-            "${d.name ?: "Unknown"} — ${d.address}"
-        }.toTypedArray()
-
-        AlertDialog.Builder(this)
-            .setTitle("Выберите устройство Callibri")
-            .setItems(items) { dialog, which ->
-                val device = scannedDevices[which]
-                connectToDevice(device)
-            }
-            .setCancelable(true)
-            .show()
-    }
-
-    private fun connectToDevice(device: BluetoothDevice) {
-        // Подключение по BLE — transport = LE
-        gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            device.connectGatt(this, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
-        } else {
-            device.connectGatt(this, false, gattCallback)
-        }
-    }
-
-    private val gattCallback = object : BluetoothGattCallback() {
-        override fun onConnectionStateChange(g: BluetoothGatt, status: Int, newState: Int) {
-            super.onConnectionStateChange(g, status, newState)
-            if (newState == android.bluetooth.BluetoothProfile.STATE_CONNECTED) {
-                g.discoverServices()
-                runOnUiThread {
-                    Toast.makeText(this@MainActivity, "Подключено к ${g.device.address}", Toast.LENGTH_SHORT).show()
-                }
-            } else if (newState == android.bluetooth.BluetoothProfile.STATE_DISCONNECTED) {
-                g.close()
-            }
-        }
-
-        override fun onServicesDiscovered(g: BluetoothGatt, status: Int) {
-            super.onServicesDiscovered(g, status)
-            // Здесь позже можно проверить, что у устройства есть нужные сервисы (ECG/HR и т.п.)
-        }
-
-        // При необходимости: чтение / подписка на характеристики
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_PERMISSIONS) {
-            val denied = grantResults.any { it != PackageManager.PERMISSION_GRANTED }
-            if (denied) {
-                Toast.makeText(this, "Нужны разрешения для BLE", Toast.LENGTH_SHORT).show()
-            } else {
-                startBleScan()
-            }
-        }
-    }
 }
