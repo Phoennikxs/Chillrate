@@ -30,6 +30,7 @@ import java.util.*
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.animation.ValueAnimator
+import android.util.Log
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -43,9 +44,12 @@ import com.neurosdk2.neuro.Scanner
 import com.neurosdk2.neuro.Sensor
 import kotlin.collections.mutableListOf
 import androidx.lifecycle.lifecycleScope
+import com.neurosdk2.neuro.types.SensorCommand
+import com.neurosdk2.neuro.types.SensorFeature
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.neurosdk2.neuro.types.CallibriSignalData
 
 
 class MainActivity : BaseActivity() {
@@ -60,6 +64,7 @@ class MainActivity : BaseActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SensorAdapter
+    private var currentSensor: Callibri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -145,22 +150,47 @@ class MainActivity : BaseActivity() {
             try {
 
                 val sensor = scanner?.createSensor(sensorInfo) as Callibri
+                currentSensor = sensor
 
+                // состояние подключения
                 sensor.sensorStateChanged = Sensor.SensorStateChanged { state ->
                     println("STATE: $state")
                 }
 
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, "Подключено!", Toast.LENGTH_LONG).show()
+                // уровень батареи
+                sensor.batteryChanged = Sensor.BatteryChanged { battery ->
+
+                    runOnUiThread {
+                        showDataDialog("Battery: $battery %")
+                    }
                 }
+
+                // подключение
+                sensor.connect()
+
+                // запуск потока сигнала
+                sensor.execCommand(SensorCommand.StartSignal)
 
             } catch (e: Exception) {
 
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, "Ошибка подключения", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Ошибка подключения: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
+    }
+
+    private fun showDataDialog(message: String) {
+
+        AlertDialog.Builder(this)
+            .setTitle("Данные датчика")
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     override fun onDestroy() {
