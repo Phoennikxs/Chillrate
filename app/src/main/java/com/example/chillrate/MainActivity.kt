@@ -1,18 +1,6 @@
 package com.example.chillrate
 
 import android.Manifest
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothGatt
-import android.bluetooth.BluetoothGattCallback
-import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattService
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.BluetoothLeScanner
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -100,7 +88,7 @@ class MainActivity : BaseActivity() {
         recyclerView.adapter = adapter
 
         startButton.setOnClickListener {
-//            startSearchUI()
+            startSearchUI()
             startScan()
         }
 
@@ -109,7 +97,7 @@ class MainActivity : BaseActivity() {
 
     private fun startScan() {
 
-        Toast.makeText(this, "Поиск Callibri...", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, "Поиск Callibri...", Toast.LENGTH_SHORT).show()
 
         scanner = Scanner(SensorFamily.SensorLECallibri)
 
@@ -139,7 +127,8 @@ class MainActivity : BaseActivity() {
 
         scanner?.sensorsChanged = null
 
-        Toast.makeText(this, "Поиск завершён", Toast.LENGTH_SHORT).show()
+//        Toast.makeText(this, "Поиск завершён", Toast.LENGTH_SHORT).show()
+        stopSearchUI()
 
     }
 

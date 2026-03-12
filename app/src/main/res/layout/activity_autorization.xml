@@ -20,6 +20,24 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/autorization_error_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginHorizontal="30dp"
+        android:layout_marginBottom="20dp"
+
+        android:text="Неверный электорнный адрес или пароль.\nПроверьте правильность введенных данных"
+        android:textColor="#A00202"
+        android:textSize="15sp"
+        android:visibility="gone"
+        android:fontFamily="@font/montserrat_regular"
+        app:layout_constraintBottom_toTopOf="@+id/edit_email"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
     <EditText
         android:id="@+id/edit_email"
         android:layout_width="match_parent"
@@ -91,51 +109,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_log_in" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:gravity="center"
-
-        android:text="ИЛИ"
-        android:textColor="@color/white"
-        android:textSize="17sp"
-        android:fontFamily="@font/montserrat_regular"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_go_to_reg" />
-
-    <Button
-        android:id="@+id/button_yandex"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginTop="27dp"
-        android:layout_marginEnd="56dp"
-        android:backgroundTint="@color/button_color_1"
-        android:fontFamily="@font/montserrat_regular"
-        android:gravity="center"
-        android:text="Вход с Яндекс"
-        android:textColor="#BF000000"
-        android:textSize="19sp"
-        app:cornerRadius="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_yandex"
-        app:layout_constraintBottom_toBottomOf="@+id/button_yandex"
-        app:layout_constraintEnd_toEndOf="@+id/button_yandex"
-        app:layout_constraintStart_toStartOf="@+id/button_yandex"
-        app:layout_constraintTop_toTopOf="@+id/button_yandex"
-        android:layout_marginEnd="252dp"
-        android:layout_marginStart="6dp"/>
-
 
     <include layout="@layout/welcome_screen"
         android:visibility="gone"/>

@@ -27,28 +27,31 @@ abstract class BaseActivity : AppCompatActivity() {
             toggleMenu()
         }
 
-        menuLayout.findViewById<Button>(R.id.btn_new_session).setOnClickListener {
+        menuLayout.findViewById<LinearLayout>(R.id.btn_new_session).setOnClickListener {
             openScreen(NewSessionActivity::class.java)
         }
 
-        menuLayout.findViewById<Button>(R.id.btn_history).setOnClickListener {
+        menuLayout.findViewById<LinearLayout>(R.id.btn_history).setOnClickListener {
             openScreen(HistoryActivity::class.java)
         }
 
-        menuLayout.findViewById<Button>(R.id.btn_profile).setOnClickListener {
+        menuLayout.findViewById<LinearLayout>(R.id.btn_profile).setOnClickListener {
             openScreen(ProfileActivity::class.java)
         }
 
-        menuLayout.findViewById<Button>(R.id.btn_group).setOnClickListener {
+        menuLayout.findViewById<LinearLayout>(R.id.btn_new_group).setOnClickListener {
             openScreen(GroupActivity::class.java)
         }
 
-        menuLayout.findViewById<Button>(R.id.btn_settings).setOnClickListener {
+        menuLayout.findViewById<LinearLayout>(R.id.btn_settings).setOnClickListener {
             openScreen(SettingsActivity::class.java)
         }
 
-        menuLayout.findViewById<Button>(R.id.btn_exit).setOnClickListener {
+        menuLayout.findViewById<LinearLayout>(R.id.btn_exit).setOnClickListener {
             finishAffinity()
+        }
+        menuLayout.findViewById<LinearLayout>(R.id.btn_premium).setOnClickListener {
+            //PremiumActivity
         }
     }
 

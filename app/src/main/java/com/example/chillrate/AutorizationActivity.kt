@@ -18,6 +18,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.chillrate.api.RetrofitClient
 import kotlinx.coroutines.launch
 
+private lateinit var AutorizationError: TextView
+
 class AutorizationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +33,7 @@ class AutorizationActivity : AppCompatActivity() {
         var AutorizationButton: Button = findViewById(R.id.btn_log_in)
         var GoToRegistrationButton: Button = findViewById(R.id.btn_go_to_reg)
         var AutriztionLayout = findViewById<View>(R.id.autorization)
+        AutorizationError = findViewById<TextView>(R.id.autorization_error_text)
         var WelcomeLayout = findViewById<View>(R.id.welcome_screen)
 
 
@@ -53,7 +56,7 @@ class AutorizationActivity : AppCompatActivity() {
             val pass = findViewById<EditText>(R.id.edit_pass).text.toString().trim()
 
             if (email.isEmpty() || pass.isEmpty()) {
-                Toast.makeText(this, "Введите данные", Toast.LENGTH_SHORT).show()
+                AutorizationError.visibility = View.VISIBLE
                 return@setOnClickListener
             }
 
@@ -72,8 +75,11 @@ class AutorizationActivity : AppCompatActivity() {
 
     private fun login(email: String, password: String) {
 
+
+
         lifecycleScope.launch {
 
+            AutorizationError.visibility = View.GONE
             try {
                 val response = RetrofitClient.api.login(email, password)
 
