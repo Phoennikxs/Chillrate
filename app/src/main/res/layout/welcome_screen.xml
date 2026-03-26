@@ -34,6 +34,7 @@
         android:gravity="center_vertical"
         android:text="Добро пожаловать\n*имя*"
         android:textSize="24sp"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/welcome_screen_decor_top" />

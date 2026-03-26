@@ -17,7 +17,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_callibri_logo_2"/>
+            android:src="@drawable/ic_callibri_logo_4"/>
 
         <ImageView
             android:layout_width="match_parent"
@@ -25,6 +25,11 @@
             android:src="@drawable/callibri"/>
 
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
 
     <LinearLayout
         android:id="@+id/btn_new_session"
@@ -47,7 +52,13 @@
             android:fontFamily="@font/montserrat_regular"
             android:background="@android:color/transparent"
             android:textColor="@color/black"/>
+
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
 
     <LinearLayout
         android:id="@+id/btn_history"
@@ -73,6 +84,11 @@
             android:textColor="@color/black"/>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
+
     <LinearLayout
         android:id="@+id/btn_profile"
         android:layout_width="match_parent"
@@ -95,6 +111,11 @@
             android:background="@android:color/transparent"
             android:textColor="@color/black"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
 
     <LinearLayout
         android:id="@+id/btn_new_group"
@@ -119,6 +140,11 @@
             android:textColor="@color/black"/>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
+
     <LinearLayout
         android:id="@+id/btn_settings"
         android:layout_width="match_parent"
@@ -141,6 +167,11 @@
             android:background="@android:color/transparent"
             android:textColor="@color/black"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
 
     <LinearLayout
         android:id="@+id/btn_exit"
@@ -165,6 +196,10 @@
             android:textColor="@color/black"/>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
 
     <LinearLayout
         android:id="@+id/btn_premium"
@@ -188,5 +223,10 @@
             android:background="@android:color/transparent"
             android:textColor="@color/black"/>
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white" />
 
 </LinearLayout>

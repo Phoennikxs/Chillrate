@@ -17,7 +17,7 @@
         android:text="профиль"
         android:gravity="center"
 
-        android:textColor="#BDCDFF"
+        android:textColor="@color/black"
 
 
         android:textSize="26dp"

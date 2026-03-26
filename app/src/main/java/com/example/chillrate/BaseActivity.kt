@@ -51,7 +51,7 @@ abstract class BaseActivity : AppCompatActivity() {
             finishAffinity()
         }
         menuLayout.findViewById<LinearLayout>(R.id.btn_premium).setOnClickListener {
-            //PremiumActivity
+            openScreen(PremiumActivity::class.java)
         }
     }
 

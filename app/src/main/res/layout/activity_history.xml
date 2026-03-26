@@ -24,7 +24,7 @@
             android:fontFamily="@font/montserrat_regular"
             android:gravity="center"
             android:text="История"
-            android:textColor="#BDCDFF"
+            android:textColor="@color/black"
             android:textSize="26dp" />
 
         <View
