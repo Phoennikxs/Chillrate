@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.neurosdk2.*
 import com.neurosdk2.helpers.PermissionHelper
 import com.neurosdk2.neuro.Callibri
+
 import com.neurosdk2.neuro.types.SensorFamily
 import com.neurosdk2.neuro.types.SensorInfo
 import com.neurosdk2.neuro.Scanner
@@ -34,10 +35,12 @@ import kotlin.collections.mutableListOf
 import androidx.lifecycle.lifecycleScope
 import com.neurosdk2.neuro.types.SensorCommand
 import com.neurosdk2.neuro.types.SensorFeature
+import com.neurosdk2.neuro.interfaces.CallibriSignalDataReceived
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.neurosdk2.neuro.types.CallibriSignalData
+import com.neurotech.callibriutils.CallibriMath
 
 
 class MainActivity : BaseActivity() {
@@ -53,6 +56,8 @@ class MainActivity : BaseActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SensorAdapter
     private var currentSensor: Callibri? = null
+    private var callibriMath: CallibriMath? = null
+    private val signalBuffer = mutableListOf<Double>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +96,14 @@ class MainActivity : BaseActivity() {
             startSearchUI()
             startScan()
         }
+
+        val samplingRate = 250
+        val dataWindow = samplingRate / 2
+        val nwins = 30
+
+        callibriMath = CallibriMath(samplingRate, dataWindow, nwins)
+        callibriMath?.setPressureAverage(6)
+
 
         setupSideMenu()
     }
@@ -150,9 +163,51 @@ class MainActivity : BaseActivity() {
                 sensor.batteryChanged = Sensor.BatteryChanged { battery ->
 
                     runOnUiThread {
-                        showDataDialog("Battery: $battery %")
+
+                        adapter.updateBattery(sensorInfo.address, battery)
+
                     }
                 }
+
+                sensor.callibriSignalDataReceived =
+                    CallibriSignalDataReceived { dataArray ->
+
+                        for (data in dataArray) {
+
+                            val samples = data.samples  // <-- это массив
+
+                            for (s in samples) {
+                                signalBuffer.add(s.toDouble())  // <-- ВОТ ТАК ПРАВИЛЬНО
+                            }
+                        }
+
+                        while (signalBuffer.size >= 25) {
+
+                            val chunk = DoubleArray(25)
+
+                            for (i in 0 until 25) {
+                                chunk[i] = signalBuffer[i]
+                            }
+
+                            repeat(25) { signalBuffer.removeAt(0) }
+
+                            callibriMath?.pushAndProcessData(chunk)
+
+                            if (callibriMath?.rrDetected() == true) {
+
+                                val hr = callibriMath?.getHR() ?: 0.0
+                                callibriMath?.setRRchecked()
+
+                                runOnUiThread {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        "Пульс: ${hr.toInt()} bpm",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    }
 
                 // подключение
                 sensor.connect()

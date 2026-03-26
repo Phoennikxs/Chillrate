@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.okhttp.logging)
 
     implementation("com.github.BrainbitLLC:neurosdk2:1.0.6.18")
+    implementation("com.github.BrainbitLLC:CallibriECG:2.0.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

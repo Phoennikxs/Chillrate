@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:background="#598ECAFF"
-    android:orientation="vertical"
     android:layout_margin="8dp">
 
     <TextView
@@ -13,8 +14,25 @@
         android:textSize="20sp"
         android:fontFamily="@font/montserrat_regular"
         android:textColor="@color/white"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sensorBattery"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/sensorBattery"
+        android:text="--%"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:fontFamily="@font/montserrat_regular"
+
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBaseline_toBaselineOf="@id/sensorName"/>
 
     <TextView
         android:id="@+id/sensorAddress"
@@ -22,6 +40,9 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/montserrat_regular"
         android:textSize="14sp"
-        android:textColor="@color/white"/>
+        android:textColor="@color/white"
 
-</LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sensorName"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
