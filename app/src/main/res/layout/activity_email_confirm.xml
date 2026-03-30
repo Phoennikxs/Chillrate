@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/emailConfirmation"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EmailConfirmActivity"
+    android:background="@drawable/bg_1">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="360dp"
+        android:layout_height="wrap_content"
+
+        android:layout_marginHorizontal="26dp"
+        android:layout_marginTop="200dp"
+        android:fontFamily="@font/montserrat_regular"
+        android:text="Подтверждение эл.почты"
+
+        android:textColor="@color/white"
+        android:textFontWeight="900"
+
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="360dp"
+
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="26dp"
+        android:layout_marginTop="42dp"
+
+        android:text="Введите код из письма, которое мы \nвам отправили на *___*"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout7"
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5">
+
+        <EditText
+            android:id="@+id/emailConfEditText1"
+            style="@style/EmailConfEditText" />
+
+        <EditText
+            android:id="@+id/emailConfEditText2"
+            style="@style/EmailConfEditText" />
+
+        <EditText
+            android:id="@+id/emailConfEditText3"
+            style="@style/EmailConfEditText" />
+
+        <EditText
+            android:id="@+id/emailConfEditText4"
+            style="@style/EmailConfEditText" />
+
+        <EditText
+            android:id="@+id/emailConfEditText5"
+            style="@style/EmailConfEditText" />
+
+        <EditText
+            android:id="@+id/emailConfEditText6"
+            style="@style/EmailConfEditText" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="263dp"
+        android:layout_height="40dp"
+
+        android:layout_marginTop="56dp"
+        android:backgroundTint="#C5D8FF"
+        android:fontFamily="@font/montserrat_regular"
+        android:text="Подтвердить"
+
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout7" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:fontFamily="@font/montserrat_regular"
+        android:text="Отправить повторно 30 сек"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+
+        android:layout_marginTop="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

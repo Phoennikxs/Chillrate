@@ -50,6 +50,8 @@ class RegistrationActivity : AppCompatActivity() {
 
                 if (response.isSuccessful) {
                     Toast.makeText(this@RegistrationActivity, "Регистрация успешна", Toast.LENGTH_LONG).show()
+
+
                     finish() // вернуться к логину
                 } else {
                     Toast.makeText(this@RegistrationActivity, "Ошибка регистрации", Toast.LENGTH_LONG).show()

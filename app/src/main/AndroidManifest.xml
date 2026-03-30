@@ -21,6 +21,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Chillrate">
         <activity
+            android:name=".EmailConfirmActivity"
+            android:exported="false" />
+        <activity
             android:name=".PremiumActivity"
             android:exported="false" />
         <activity
