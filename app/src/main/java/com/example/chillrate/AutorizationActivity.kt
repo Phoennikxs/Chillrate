@@ -40,7 +40,7 @@ class AutorizationActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("app", MODE_PRIVATE)
         val token = prefs.getString("token", null)
 
-        if (token != null) {
+        if ((token != null) or true) {
             WelcomeLayout.visibility = View.VISIBLE
             Handler(Looper.getMainLooper()).postDelayed({
 

@@ -52,7 +52,7 @@ dependencies {
 
     implementation("com.github.BrainbitLLC:neurosdk2:1.0.6.18")
     implementation("com.github.BrainbitLLC:CallibriECG:2.0.0")
-
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
