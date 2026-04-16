@@ -1,7 +1,9 @@
 package com.example.chillrate
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,9 +20,12 @@ import com.neurosdk2.neuro.interfaces.CallibriSignalDataReceived
 import com.neurosdk2.neuro.types.SensorCommand
 import com.neurosdk2.neuro.types.SensorInfo
 import com.neurotech.callibriutils.CallibriMath
+import com.example.chillrate.data.AppDatabase
+import com.example.chillrate.data.SessionEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 class NewSessionActivity : AppCompatActivity() {
 
@@ -30,10 +35,15 @@ class NewSessionActivity : AppCompatActivity() {
 
     private lateinit var chartHR: LineChart
     private lateinit var textViewHR: TextView
+    private lateinit var btnEndSession: Button
 
     private val heartRateEntries = ArrayList<Entry>()
-    private var entryIndex = 0f          // X-координата (время)
-    private var lastHR = 0               // последний показанный пульс
+    private var entryIndex = 0f
+    private var lastHR = 0
+
+    // Данные для сохранения сеанса
+    private var sessionStartTime: Date = Date()
+    private val heartRates = mutableListOf<Int>()   // ← Здесь хранятся ВСЕ значения пульса
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +51,7 @@ class NewSessionActivity : AppCompatActivity() {
 
         textViewHR = findViewById(R.id.textViewHR)
         chartHR = findViewById(R.id.chartHR)
+        btnEndSession = findViewById(R.id.btn_session_end)
 
         setupChart()
 
@@ -60,7 +71,14 @@ class NewSessionActivity : AppCompatActivity() {
         callibriMath = CallibriMath(samplingRate, dataWindow, nwins)
         callibriMath?.setPressureAverage(6)
 
+        sessionStartTime = Date()   // фиксируем время начала
+
         connectToSensor(sensorInfo)
+
+        // Кнопка завершения сеанса
+        btnEndSession.setOnClickListener {
+            endSession()
+        }
     }
 
     private fun setupChart() {
@@ -89,44 +107,36 @@ class NewSessionActivity : AppCompatActivity() {
             legend.isEnabled = false
         }
 
-        // Настраиваем LineDataSet без сглаживания и без заливки
         val dataSet = LineDataSet(heartRateEntries, "Пульс").apply {
-            color = Color.parseColor("#7C0202")      // ярко-розовый (можно поменять)
+            color = Color.parseColor("#7C0202")
             lineWidth = 4f
-            setDrawCircles(false)                    // без точек на линии
-            setDrawValues(false)                     // без цифр на точках
-            mode = LineDataSet.Mode.LINEAR            // ← острая линия (без закруглений)
-
-            // Убираем заполнение полностью
-            setDrawFilled(false)                     // ← главное изменение
-            // fillColor и fillAlpha можно оставить или удалить — они больше не используются
+            setDrawCircles(false)
+            setDrawValues(false)
+            mode = LineDataSet.Mode.LINEAR
+            setDrawFilled(false)
         }
 
-        val lineData = LineData(dataSet)
-        chartHR.data = lineData
+        chartHR.data = LineData(dataSet)
     }
 
     private fun updateHeartRate(hr: Int) {
         lastHR = hr
         textViewHR.text = "$hr уд/мин"
 
-        // Добавляем новую точку
+        heartRates.add(hr)                    // ← Сохраняем каждое значение пульса
+
         heartRateEntries.add(Entry(entryIndex, hr.toFloat()))
         entryIndex += 1f
 
-        // Оставляем только последние 60 точек (≈ 1 минута)
         if (heartRateEntries.size > 60) {
             heartRateEntries.removeAt(0)
         }
 
-        // Обновляем данные графика
         val dataSet = chartHR.data.getDataSetByIndex(0) as LineDataSet
         dataSet.values = heartRateEntries
 
         chartHR.data.notifyDataChanged()
         chartHR.notifyDataSetChanged()
-
-        // Автопрокрутка вправо
         chartHR.setVisibleXRangeMaximum(60f)
         chartHR.moveViewToX(entryIndex)
     }
@@ -182,6 +192,65 @@ class NewSessionActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /** Завершение сеанса и сохранение в базу */
+    private fun endSession() {
+        if (heartRates.isEmpty()) {
+            Toast.makeText(this, "Сеанс слишком короткий", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        val endTime = Date()
+        val durationSeconds = ((endTime.time - sessionStartTime.time) / 1000).toInt()
+        val avgHR = heartRates.average().toInt()
+        val maxHR = heartRates.maxOrNull() ?: avgHR
+
+        // Преобразуем список пульсов в строку для хранения в базе
+        val hrDataJson = heartRates.joinToString(",")
+
+        val sessionEntity = SessionEntity(
+            userEmail = getCurrentUserEmail(),
+            startTime = sessionStartTime,
+            endTime = endTime,
+            durationSeconds = durationSeconds,
+            averageHR = avgHR,
+            maxHR = maxHR,
+            hrDataJson = hrDataJson,           // ← все значения пульса
+            stressLevel = null,
+            notes = null
+        )
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val db = AppDatabase.getDatabase(this@NewSessionActivity)
+                db.sessionDao().insertSession(sessionEntity)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@NewSessionActivity,
+                        "Сеанс сохранён (${durationSeconds} сек, ${heartRates.size} измерений)",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    // Возвращаемся на главный экран
+                    val intent = Intent(this@NewSessionActivity, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    startActivity(intent)
+                    finish()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@NewSessionActivity, "Ошибка сохранения сеанса: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun getCurrentUserEmail(): String {
+        return getSharedPreferences("app", MODE_PRIVATE)
+            .getString("user_email", "unknown@user.com") ?: "unknown@user.com"
     }
 
     override fun onDestroy() {

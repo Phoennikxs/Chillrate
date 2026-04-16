@@ -6,13 +6,25 @@ import retrofit2.http.*
 
 interface AuthApi {
 
-    // регистрация
+    // Регистрация
     @POST("auth/register")
     suspend fun register(
         @Body request: RegisterRequest
-    ): Response<Unit>
+    ): Response<UserResponse>
 
-    // логин (form-urlencoded)
+    // Подтверждение email
+    @POST("auth/verify-email")
+    suspend fun verifyEmail(
+        @Body request: VerifyEmailRequest
+    ): Response<Map<String, String>>
+
+    // Повторная отправка кода
+    @POST("auth/resend-code")
+    suspend fun resendCode(
+        @Body request: ResendCodeRequest
+    ): Response<Map<String, String>>
+
+    // Логин
     @FormUrlEncoded
     @POST("auth/login")
     suspend fun login(
@@ -20,7 +32,7 @@ interface AuthApi {
         @Field("password") password: String
     ): Response<LoginResponse>
 
-    // получить себя
+    // Получить текущего пользователя (на будущее)
     @GET("auth/me")
     suspend fun me(
         @Header("Authorization") token: String
