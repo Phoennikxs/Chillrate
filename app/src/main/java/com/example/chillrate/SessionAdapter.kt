@@ -1,13 +1,18 @@
 package com.example.chillrate
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.chillrate.data.SessionEntity
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 class SessionAdapter(
     private val onSessionClick: (SessionEntity) -> Unit
@@ -34,31 +39,61 @@ class SessionAdapter(
     override fun getItemCount() = sessions.size
 
     inner class SessionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         private val tvDate: TextView = itemView.findViewById(R.id.textViewDate)
         private val tvTime: TextView = itemView.findViewById(R.id.textViewTime)
         private val tvHR: TextView = itemView.findViewById(R.id.textViewHR)
         private val tvDuration: TextView = itemView.findViewById(R.id.textViewDuration)
-        // можно добавить stress и strength позже
+        private val chart: LineChart = itemView.findViewById(R.id.chartSession)
 
         private val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
         private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
+        private var isExpanded = false
+
         fun bind(session: SessionEntity) {
             tvDate.text = dateFormat.format(session.startTime)
             tvTime.text = timeFormat.format(session.startTime)
-
             tvHR.text = "${session.averageHR}"
             tvDuration.text = formatDuration(session.durationSeconds)
 
+            // Скрываем график по умолчанию
+            chart.visibility = if (isExpanded) View.VISIBLE else View.GONE
+
             itemView.setOnClickListener {
-                onSessionClick(session)
+                isExpanded = !isExpanded
+                chart.visibility = if (isExpanded) View.VISIBLE else View.GONE
+
+                if (isExpanded) {
+                    showChart(session)
+                }
             }
         }
 
+        private fun showChart(session: SessionEntity) {
+            val hrList = session.hrDataJson.split(",")
+                .mapNotNull { it.trim().toIntOrNull() }
+
+            val entries = hrList.mapIndexed { index, value ->
+                Entry(index.toFloat(), value.toFloat())
+            }
+
+            val dataSet = LineDataSet(entries, "Пульс").apply {
+                color = Color.parseColor("#7C0202")
+                lineWidth = 3f
+                setDrawCircles(false)
+                setDrawValues(false)
+                mode = LineDataSet.Mode.LINEAR
+            }
+
+            chart.data = LineData(dataSet)
+            chart.invalidate()
+        }
+
         private fun formatDuration(seconds: Int): String {
-            val minutes = seconds / 60
-            val secs = seconds % 60
-            return String.format("%02d:%02d", minutes, secs)
+            val min = seconds / 60
+            val sec = seconds % 60
+            return String.format("%02d:%02d", min, sec)
         }
     }
 }

@@ -37,4 +37,14 @@ interface AuthApi {
     suspend fun me(
         @Header("Authorization") token: String
     ): Response<UserResponse>
+
+    @GET("auth/me")
+    suspend fun getCurrentUser(
+        @Header("Authorization") token: String
+    ): Response<UserResponse>
+
+    @POST("user/update-params")
+    suspend fun updateUserParams(
+        @Body request: UpdateUserParamsRequest
+    ): Response<Map<String, String>>
 }

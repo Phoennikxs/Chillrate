@@ -99,7 +99,10 @@ class EmailConfirmActivity : AppCompatActivity() {
                     Toast.makeText(this@EmailConfirmActivity, "Почта успешно подтверждена!", Toast.LENGTH_LONG).show()
 
                     // Переходим на экран входа
-                    val intent = Intent(this@EmailConfirmActivity, AutorizationActivity::class.java)
+                    val intent = Intent(this@EmailConfirmActivity, PersonalDataActivity::class.java).apply {
+                        putExtra("EMAIL", email)
+                        putExtra("NAME", intent.getStringExtra("NAME") ?: "")
+                    }
                     startActivity(intent)
                     finish()
                 } else {
