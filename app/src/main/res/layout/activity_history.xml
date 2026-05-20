@@ -59,6 +59,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <include
+        android:visibility="invisible"
         android:id="@+id/menu_layout"
         layout="@layout/side_menu"
         app:layout_constraintTop_toTopOf="parent"

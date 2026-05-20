@@ -109,35 +109,13 @@
         app:layout_constraintTop_toTopOf="@id/imageView3" />
 
     <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:src="@drawable/ic_arm"
-        app:layout_constraintStart_toEndOf="@id/textViewHR"
-        app:layout_constraintTop_toTopOf="@id/imageView3" />
-
-    <TextView
-        android:id="@+id/textViewStrength"
-        android:layout_width="45dp"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat_regular"
-        android:gravity="end"
-        android:text="__"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="@id/imageView4"
-        app:layout_constraintStart_toEndOf="@id/imageView4"
-        app:layout_constraintTop_toTopOf="@id/imageView4" />
-
-    <ImageView
         android:id="@+id/imageView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:src="@drawable/ic_stress"
-        app:layout_constraintStart_toEndOf="@id/textViewStrength"
-        app:layout_constraintTop_toTopOf="@id/imageView4" />
+        android:layout_marginStart="24dp"
+        app:layout_constraintStart_toEndOf="@+id/textViewHR"
+        app:layout_constraintTop_toTopOf="@+id/imageView3" />
 
     <TextView
         android:id="@+id/textViewStress"
@@ -171,23 +149,12 @@
         android:text="__:__"
         android:textColor="#000000"
         android:textSize="20sp"
+
         app:layout_constraintBottom_toBottomOf="@id/imageView6"
         app:layout_constraintStart_toEndOf="@id/imageView6"
         app:layout_constraintTop_toTopOf="@id/imageView6" />
 
-    <!-- Вид деятельности -->
-    <TextView
-        android:id="@+id/textViewTypeOfActivity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat_regular"
-        android:padding="7dp"
-        android:text="Вид деятельности:"
-        android:textColor="#000000"
-        android:textSize="17sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView6" />
+
 
     <!-- ГРАФИК — изначально скрыт -->
     <com.github.mikephil.charting.charts.LineChart
@@ -197,7 +164,7 @@
         android:layout_marginHorizontal="12dp"
         android:layout_marginTop="16dp"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/textViewTypeOfActivity"
+        app:layout_constraintTop_toBottomOf="@id/textViewDuration"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

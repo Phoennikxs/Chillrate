@@ -47,4 +47,15 @@ interface AuthApi {
     suspend fun updateUserParams(
         @Body request: UpdateUserParamsRequest
     ): Response<Map<String, String>>
+
+    @POST("groups/{group_id}/members")
+    suspend fun addMemberToGroup(
+        @Path("group_id") groupId: Int,
+        @Body request: GroupMemberAddRequest
+    ): Response<Map<String, String>>
+
+    @GET("groups/{group_id}/members")
+    suspend fun getGroupMembers(
+        @Path("group_id") groupId: Int
+    ): Response<List<GroupMemberOut>>
 }

@@ -46,7 +46,6 @@
         app:layout_constraintBottom_toBottomOf="@id/linearLayout5" />
 
     <!-- Большой блок группы -->
-    <!-- Большой блок группы с закруглениями -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/groupBlock"
         android:layout_width="match_parent"
@@ -59,10 +58,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Название группы -->
+        <!-- Название группы + кнопка добавить -->
         <TextView
             android:id="@+id/tvGroupName"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="#80C5D8FF"
             android:padding="14dp"
@@ -73,7 +72,21 @@
             android:gravity="center"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toStartOf="@id/btnAddMember" />
+
+        <Button
+            android:id="@+id/btnAddMember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ Добавить"
+            android:textSize="14sp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:backgroundTint="#4A90E2"
+            android:textColor="@color/white"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/tvGroupName" />
 
         <!-- Список участников -->
         <androidx.recyclerview.widget.RecyclerView

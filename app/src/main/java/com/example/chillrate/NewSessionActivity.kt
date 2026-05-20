@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -27,7 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
 
-class NewSessionActivity : AppCompatActivity() {
+class NewSessionActivity : BaseActivity() {
 
     private var currentSensor: Callibri? = null
     private var callibriMath: CallibriMath? = null
@@ -35,15 +34,22 @@ class NewSessionActivity : AppCompatActivity() {
 
     private lateinit var chartHR: LineChart
     private lateinit var textViewHR: TextView
+    private lateinit var btnPulseTab: TextView
+    private lateinit var btnStressTab: TextView
     private lateinit var btnEndSession: Button
 
     private val heartRateEntries = ArrayList<Entry>()
+    private val stressEntries = ArrayList<Entry>()
+
     private var entryIndex = 0f
     private var lastHR = 0
 
-    // Данные для сохранения сеанса
+    private var currentMode = ChartMode.PULSE
+
     private var sessionStartTime: Date = Date()
-    private val heartRates = mutableListOf<Int>()   // ← Здесь хранятся ВСЕ значения пульса
+    private val heartRates = mutableListOf<Int>()
+
+    private enum class ChartMode { PULSE, STRESS }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +57,13 @@ class NewSessionActivity : AppCompatActivity() {
 
         textViewHR = findViewById(R.id.textViewHR)
         chartHR = findViewById(R.id.chartHR)
+        btnPulseTab = findViewById(R.id.text_pulse_tab)
+        btnStressTab = findViewById(R.id.text_stress_tab)
         btnEndSession = findViewById(R.id.btn_session_end)
 
+        setupSideMenu()           // ← из BaseActivity
         setupChart()
+        setupTabs()
 
         val sensorInfo = SensorHolder.selectedSensorInfo
         SensorHolder.selectedSensorInfo = null
@@ -71,14 +81,11 @@ class NewSessionActivity : AppCompatActivity() {
         callibriMath = CallibriMath(samplingRate, dataWindow, nwins)
         callibriMath?.setPressureAverage(6)
 
-        sessionStartTime = Date()   // фиксируем время начала
+        sessionStartTime = Date()
 
         connectToSensor(sensorInfo)
 
-        // Кнопка завершения сеанса
-        btnEndSession.setOnClickListener {
-            endSession()
-        }
+        btnEndSession.setOnClickListener { endSession() }
     }
 
     private fun setupChart() {
@@ -99,16 +106,38 @@ class NewSessionActivity : AppCompatActivity() {
             axisLeft.apply {
                 setDrawGridLines(true)
                 textColor = Color.GRAY
-                axisMinimum = 40f
+                axisMinimum = 0f
                 axisMaximum = 220f
             }
 
             axisRight.isEnabled = false
             legend.isEnabled = false
         }
+    }
 
-        val dataSet = LineDataSet(heartRateEntries, "Пульс").apply {
-            color = Color.parseColor("#7C0202")
+    private fun setupTabs() {
+        btnPulseTab.setOnClickListener { switchToMode(ChartMode.PULSE) }
+        btnStressTab.setOnClickListener { switchToMode(ChartMode.STRESS) }
+        switchToMode(ChartMode.PULSE)
+    }
+
+    private fun switchToMode(mode: ChartMode) {
+        currentMode = mode
+
+        if (mode == ChartMode.PULSE) {
+            btnPulseTab.background = getDrawable(R.drawable.tab_selected)
+            btnStressTab.background = getDrawable(R.drawable.tab_unselected)
+            updateChartWithData(heartRateEntries, "Пульс")
+        } else {
+            btnStressTab.background = getDrawable(R.drawable.tab_selected)
+            btnPulseTab.background = getDrawable(R.drawable.tab_unselected)
+            updateChartWithData(stressEntries, "Стресс")
+        }
+    }
+
+    private fun updateChartWithData(entries: ArrayList<Entry>, label: String) {
+        val dataSet = LineDataSet(entries, label).apply {
+            color = if (currentMode == ChartMode.PULSE) Color.parseColor("#7C0202") else Color.parseColor("#2196F3")
             lineWidth = 4f
             setDrawCircles(false)
             setDrawValues(false)
@@ -117,35 +146,56 @@ class NewSessionActivity : AppCompatActivity() {
         }
 
         chartHR.data = LineData(dataSet)
+        chartHR.invalidate()
     }
 
     private fun updateHeartRate(hr: Int) {
         lastHR = hr
         textViewHR.text = "$hr уд/мин"
 
-        heartRates.add(hr)                    // ← Сохраняем каждое значение пульса
-
+        heartRates.add(hr)
         heartRateEntries.add(Entry(entryIndex, hr.toFloat()))
-        entryIndex += 1f
 
-        if (heartRateEntries.size > 60) {
-            heartRateEntries.removeAt(0)
+        if (heartRateEntries.size > 60) heartRateEntries.removeAt(0)
+
+        if (currentMode == ChartMode.PULSE) {
+            updateChartWithData(heartRateEntries, "Пульс")
         }
 
-        val dataSet = chartHR.data.getDataSetByIndex(0) as LineDataSet
-        dataSet.values = heartRateEntries
+        entryIndex += 1f
 
-        chartHR.data.notifyDataChanged()
-        chartHR.notifyDataSetChanged()
-        chartHR.setVisibleXRangeMaximum(60f)
-        chartHR.moveViewToX(entryIndex)
+        // Расчёт стресса каждые 8 RR-интервалов
+        if (heartRates.size % 8 == 0) {
+            val stress = calculateStress()
+            updateStress(stress)
+        }
+    }
+
+    private fun calculateStress(): Float {
+        return try {
+            callibriMath?.getPressureIndex()?.toFloat() ?: 50f
+        } catch (e: Exception) {
+            50f
+        }
+    }
+
+    private fun updateStress(stressValue: Float) {
+        stressEntries.add(Entry(entryIndex, stressValue))
+
+        if (stressEntries.size > 60) stressEntries.removeAt(0)
+
+        if (currentMode == ChartMode.STRESS) {
+            updateChartWithData(stressEntries, "Стресс")
+        }
     }
 
     private fun connectToSensor(sensorInfo: SensorInfo) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val scanner = Scanner(com.neurosdk2.neuro.types.SensorFamily.SensorLECallibri)
-                val sensor = scanner.createSensor(sensorInfo) as Callibri
+                val sensor = scanner.createSensor(sensorInfo) as? Callibri
+                    ?: throw Exception("Не удалось создать сенсор")
+
                 currentSensor = sensor
                 scanner.close()
 
@@ -162,9 +212,7 @@ class NewSessionActivity : AppCompatActivity() {
 
                     while (signalBuffer.size >= 25) {
                         val chunk = DoubleArray(25)
-                        for (i in 0 until 25) {
-                            chunk[i] = signalBuffer[i]
-                        }
+                        for (i in 0 until 25) chunk[i] = signalBuffer[i]
                         repeat(25) { signalBuffer.removeAt(0) }
 
                         callibriMath?.pushAndProcessData(chunk)
@@ -174,9 +222,7 @@ class NewSessionActivity : AppCompatActivity() {
                             callibriMath?.setRRchecked()
 
                             if (hr > 0) {
-                                runOnUiThread {
-                                    updateHeartRate(hr)
-                                }
+                                runOnUiThread { updateHeartRate(hr) }
                             }
                         }
                     }
@@ -186,6 +232,7 @@ class NewSessionActivity : AppCompatActivity() {
                 sensor.execCommand(SensorCommand.StartSignal)
 
             } catch (e: Exception) {
+                e.printStackTrace()
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@NewSessionActivity, "Ошибка подключения: ${e.message}", Toast.LENGTH_LONG).show()
                     finish()
@@ -194,7 +241,6 @@ class NewSessionActivity : AppCompatActivity() {
         }
     }
 
-    /** Завершение сеанса и сохранение в базу */
     private fun endSession() {
         if (heartRates.isEmpty()) {
             Toast.makeText(this, "Сеанс слишком короткий", Toast.LENGTH_SHORT).show()
@@ -207,7 +253,13 @@ class NewSessionActivity : AppCompatActivity() {
         val avgHR = heartRates.average().toInt()
         val maxHR = heartRates.maxOrNull() ?: avgHR
 
-        // Преобразуем список пульсов в строку для хранения в базе
+        // Средний стресс за сеанс
+        val avgStress = if (stressEntries.isNotEmpty()) {
+            stressEntries.map { it.y }.average().toFloat()
+        } else {
+            calculateStress() // последнее значение
+        }
+
         val hrDataJson = heartRates.joinToString(",")
 
         val sessionEntity = SessionEntity(
@@ -217,8 +269,8 @@ class NewSessionActivity : AppCompatActivity() {
             durationSeconds = durationSeconds,
             averageHR = avgHR,
             maxHR = maxHR,
-            hrDataJson = hrDataJson,           // ← все значения пульса
-            stressLevel = null,
+            stressLevel = avgStress,           // ← сохраняем стресс
+            hrDataJson = hrDataJson,
             notes = null
         )
 
@@ -230,11 +282,10 @@ class NewSessionActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(
                         this@NewSessionActivity,
-                        "Сеанс сохранён (${durationSeconds} сек, ${heartRates.size} измерений)",
+                        "Сеанс сохранён (${durationSeconds} сек)",
                         Toast.LENGTH_LONG
                     ).show()
 
-                    // Возвращаемся на главный экран
                     val intent = Intent(this@NewSessionActivity, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                     startActivity(intent)
@@ -242,7 +293,7 @@ class NewSessionActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@NewSessionActivity, "Ошибка сохранения сеанса: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@NewSessionActivity, "Ошибка сохранения сеанса", Toast.LENGTH_LONG).show()
                 }
             }
         }

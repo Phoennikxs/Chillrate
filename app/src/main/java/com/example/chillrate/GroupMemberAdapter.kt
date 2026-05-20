@@ -28,19 +28,18 @@ class GroupMemberAdapter(
 
         private val tvName: TextView = itemView.findViewById(R.id.text_person_name)
         private val tvHR: TextView = itemView.findViewById(R.id.text_person_HR)
-        private val tvStress: TextView = itemView.findViewById(R.id.text_person_stress) // убедись, что id существует
+        private val tvStress: TextView = itemView.findViewById(R.id.text_person_stress)
 
         fun bind(member: GroupMember) {
             tvName.text = member.fullName
             tvHR.text = "${member.heartRate} уд/мин"
             tvStress.text = "${member.stressLevel}% стресс"
 
-            // Цвет пульса в зависимости от значения
             tvHR.setTextColor(
                 when {
-                    member.heartRate >= 110 -> Color.parseColor("#E53935")  // красный
-                    member.heartRate >= 90 -> Color.parseColor("#FB8C00")   // оранжевый
-                    else -> Color.parseColor("#2E7D32")                     // зелёный
+                    member.heartRate >= 110 -> Color.parseColor("#E53935")
+                    member.heartRate >= 90 -> Color.parseColor("#FB8C00")
+                    else -> Color.parseColor("#2E7D32")
                 }
             )
         }

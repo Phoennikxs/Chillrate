@@ -43,6 +43,7 @@ class SessionAdapter(
         private val tvDate: TextView = itemView.findViewById(R.id.textViewDate)
         private val tvTime: TextView = itemView.findViewById(R.id.textViewTime)
         private val tvHR: TextView = itemView.findViewById(R.id.textViewHR)
+        private val tvStress: TextView = itemView.findViewById(R.id.textViewStress)
         private val tvDuration: TextView = itemView.findViewById(R.id.textViewDuration)
         private val chart: LineChart = itemView.findViewById(R.id.chartSession)
 
@@ -57,7 +58,23 @@ class SessionAdapter(
             tvHR.text = "${session.averageHR}"
             tvDuration.text = formatDuration(session.durationSeconds)
 
-            // Скрываем график по умолчанию
+            // Отображение стресса
+            tvStress.text = if (session.stressLevel != null) {
+                "${session.stressLevel.toInt()}%"
+            } else {
+                "—"
+            }
+
+            // Цвет стресса
+            tvStress.setTextColor(
+                when {
+                    (session.stressLevel ?: 0f) > 70 -> Color.parseColor("#E53935")  // высокий стресс — красный
+                    (session.stressLevel ?: 0f) > 50 -> Color.parseColor("#FB8C00")  // средний — оранжевый
+                    else -> Color.parseColor("#2E7D32")                              // нормальный — зелёный
+                }
+            )
+
+            // График изначально скрыт
             chart.visibility = if (isExpanded) View.VISIBLE else View.GONE
 
             itemView.setOnClickListener {
